@@ -19,30 +19,26 @@ jobs:
     - name: Instalacja Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '16'
 
-    - name: Instalacja Java (JDK)
+    - name: Instalacja Java (JDK 11)
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        distribution: 'zulu'
+        java-version: '11'
 
     - name: Instalacja Apache Cordova
       run: npm install -g cordova
 
-    - name: Budowanie projektu Android
+    - name: Budowanie projektu na podstawie package.json
       run: |
-        cordova create emerytura_app com.tomek.nowaemerytura "Nowa Emerytura"
-        cd emerytura_app
-        rm -rf www
-        cp -r ../www www
-        cp ../config.xml config.xml
-        cordova platform add android
+        # Pobranie konfiguracji platform z pliku package.json
+        cordova prepare android
+        # Kompilacja do czystego pliku APK
         cordova build android --debug
 
     - name: Udostępnienie gotowego pliku APK
       uses: actions/upload-artifact@v4
       with:
         name: Nowa_Emerytura_APK
-        # Elastyczna ścieżka ze znakiem gwiazdki – znajdzie plik APK bez względu na dokładną strukturę folderów
-        path: emerytura_app/**/*.apk
+        path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
