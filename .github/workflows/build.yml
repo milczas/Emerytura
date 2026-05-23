@@ -27,12 +27,6 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    # WYMUSZENIE STABILNEGO GRADLE (Naprawa błędu XmlParser z Gradle 9.5.1)
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: '8.7'
-
     - name: Install Cordova
       run: npm install -g cordova
 
@@ -41,6 +35,9 @@ jobs:
         mkdir -p www
         cp index.html www/ 2>/dev/null || true
         cp icon.png www/ 2>/dev/null || true
+        
+        # Wymuszenie stabilnego Gradle 8.7 bezpośrednio w konfiguracji kompilacji platformy
+        export CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL="https://services.gradle.org/distributions/gradle-8.7-bin.zip"
         
         cordova platform add android@12.0.0 --nosave
         cordova build android --packageType=apk --debug
