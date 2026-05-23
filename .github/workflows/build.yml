@@ -44,4 +44,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Nowa_Emerytura_APK
-        path: emerytura_app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        # Elastyczna ścieżka ze znakiem gwiazdki – znajdzie plik APK bez względu na dokładną strukturę folderów
+        path: emerytura_app/**/*.apk
