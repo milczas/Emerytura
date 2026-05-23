@@ -36,8 +36,9 @@ jobs:
         cd cordova_project
         cordova create app com.tomek.nowaemerytura "Nowa Emerytura"
         rm -rf app/www
-        # Bezpieczne kopiowanie całego katalogu www bez używania problematycznych gwiazdek
+        # Kopiujemy bezpiecznie cały folder www do wnętrza aplikacji
         cp -r ../www app/www
+        # Kopiujemy plik konfiguracyjny
         cp ../config.xml app/
         cd app
         cordova platform add android
