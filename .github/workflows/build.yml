@@ -1,48 +1,44 @@
-name: Generuj APK
+name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Pobranie kodu źródłowego
-      uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-    - name: Instalacja Node.js
-      uses: actions/setup-node@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
         node-version: '16'
 
-    - name: Instalacja Java (JDK 11)
-      uses: actions/setup-java@v4
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
         java-version: '11'
 
-    - name: Instalacja Apache Cordova
+    - name: Install Cordova
       run: npm install -g cordova
 
-    - name: Przygotowanie struktury i budowanie
+    - name: Create Cordova Project
       run: |
-        # Tworzymy tymczasowy folder www, którego wymaga Cordova w procesie budowania
-        mkdir www
-        # Kopiujemy luźne pliki z głównego katalogu do folderu www
-        cp index.html www/
-        cp icon.png www/
-        # Instalacja platformy i kompilacja
+        cordova create emerytura com.milczas.emerytura Emerytura
+        cd emerytura
         cordova platform add android
-        cordova build android --packageType=apk --debug
+        rm -rf www/*
+        cp -r ../www/* www/
+        cp ../config.xml .
+        cordova build android --debug
 
-    - name: Udostępnienie gotowego pliku APK
-      uses: actions/upload-artifact@v4
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
       with:
-        name: Nowa_Emerytura_APK
-        path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        name: app-debug
+        path: emerytura/platforms/android/app/build/outputs/apk/debug/app-debug.apk
