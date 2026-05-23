@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,31 +19,32 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: '20'
 
-    - name: Set up JDK 11
+    - name: Set up JDK
       uses: actions/setup-java@v4
       with:
-        distribution: 'zulu'
-        java-version: '11'
+        distribution: 'temurin'
+        java-version: '17'
 
     - name: Install Cordova
       run: npm install -g cordova
 
-    - name: Create Cordova Project
+    - name: Budowanie projektu Android
       run: |
-        cordova create emerytura com.milczas.emerytura Emerytura
-        cd emerytura
-        cordova platform add android
-        rm -rf www/*
-        cp ../index.html www/
-        cp ../icon.png www/
-        cp ../config.xml .
+        # 1. Tworzymy wymagany przez Cordovę folder www w pamięci serwera
+        mkdir -p www
+        
+        # 2. Bezpiecznie przenosimy tam luźne pliki z wierzchu
+        cp index.html www/ 2>/dev/null || true
+        cp icon.png www/ 2>/dev/null || true
+        
+        # 3. Instalacja platformy i budowanie na bazie istniejącego package.json
+        cordova platform add android --nosave
         cordova build android --packageType=apk --debug
 
     - name: Upload APK
-      # ZMIANA: Podbita wersja do v4, która jest kategorycznie wymagana przez GitHub w 2026 roku
       uses: actions/upload-artifact@v4
       with:
         name: Nowa_Emerytura_APK
-        path: emerytura/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
