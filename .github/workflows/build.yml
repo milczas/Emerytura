@@ -32,13 +32,20 @@ jobs:
 
     - name: Budowanie projektu Android
       run: |
+        # 1. Pobieramy stabilne Gradle 8.7 w tle i rozpakowujemy je na serwerze
+        wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip
+        sudo unzip -oq gradle-8.7-bin.zip -d /usr/share
+        
+        # 2. BRUTALNE ROZWIĄZANIE: Nadpisujemy systemowy skrót w Linuksie, aby wskazywał na wersję 8.7 zamiast 9.5.1
+        sudo ln -sf /usr/share/gradle-8.7/bin/gradle /usr/share/gradle-9.5.1/bin/gradle
+        sudo ln -sf /usr/share/gradle-8.7/bin/gradle /usr/bin/gradle
+        
+        # 3. Przygotowanie struktury plików
         mkdir -p www
         cp index.html www/ 2>/dev/null || true
         cp icon.png www/ 2>/dev/null || true
         
-        # Wymuszenie stabilnego Gradle 8.7 bezpośrednio w konfiguracji kompilacji platformy
-        export CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL="https://services.gradle.org/distributions/gradle-8.7-bin.zip"
-        
+        # 4. Budowanie projektu (teraz system fizycznie odpali wersję 8.7 z XmlParserem)
         cordova platform add android@12.0.0 --nosave
         cordova build android --packageType=apk --debug
 
