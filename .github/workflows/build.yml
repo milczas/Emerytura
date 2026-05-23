@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  # Wymuszenie użycia Node.js 24 w akcjach, aby wyeliminować żółte ostrzeżenia na GitHubie
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
@@ -37,8 +36,7 @@ jobs:
         cd cordova_project
         cordova create app com.tomek.nowaemerytura "Nowa Emerytura"
         rm -rf app/www/*
-        cp -r ../index.html app/www/
-        if [ -f ../icon.png ]; then cp ../icon.png app/www/; fi
+        cp -r ../www/* app/www/
         cp ../config.xml app/
         cd app
         cordova platform add android
