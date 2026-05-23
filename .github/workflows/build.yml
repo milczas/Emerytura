@@ -35,8 +35,9 @@ jobs:
         mkdir cordova_project
         cd cordova_project
         cordova create app com.tomek.nowaemerytura "Nowa Emerytura"
-        rm -rf app/www/*
-        cp -r ../www/* app/www/
+        rm -rf app/www
+        # Bezpieczne kopiowanie całego katalogu www bez używania problematycznych gwiazdek
+        cp -r ../www app/www
         cp ../config.xml app/
         cd app
         cordova platform add android
