@@ -1,48 +1,55 @@
-name: Build Android APK
+name: Generuj APK (Cordova)
 
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  # Wymuszenie użycia Node.js 24 w akcjach, aby wyeliminować żółte ostrzeżenia na GitHubie
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+
     steps:
-    - name: Pobieranie kodu repozytorium
+    - name: Pobranie kodu źródłowego
       uses: actions/checkout@v4
 
-    - name: Konfiguracja Node.js
+    - name: Instalacja Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '16'
 
-    - name: Konfiguracja środowiska Java
+    - name: Instalacja Java (JDK 11)
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
+        distribution: 'zulu'
         java-version: '11'
 
-    - name: Konfiguracja środowiska Gradle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '7.6.3'
-
-    - name: Instalacja Android Build Tools 33.0.2
-      run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2"
-
-    - name: Instalacja środowiska Cordova
+    - name: Instalacja Apache Cordova
       run: npm install -g cordova
 
-    - name: Instalacja zaleznosci projektu
-      run: npm install
-
-    - name: Budowanie pliku APK
+    - name: Przygotowanie projektu Cordova
       run: |
+        mkdir cordova_project
+        cd cordova_project
+        cordova create app com.tomek.nowaemerytura "Nowa Emerytura"
+        rm -rf app/www/*
+        cp -r ../index.html app/www/
+        if [ -f ../icon.png ]; then cp ../icon.png app/www/; fi
+        cp ../config.xml app/
+        cd app
         cordova platform add android
-        cordova build android
 
-    - name: Udostepnienie pliku APK
+    - name: Kompilacja pliku APK
+      run: |
+        cd cordova_project/app
+        cordova build android --debug
+
+    - name: Udostępnienie gotowego pliku APK do pobrania
       uses: actions/upload-artifact@v4
       with:
-        name: Liczniki-ROD-App
-        path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        name: Nowa_Emerytura_APK
+        path: cordova_project/app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
