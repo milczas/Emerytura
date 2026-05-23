@@ -32,15 +32,17 @@ jobs:
 
     - name: Budowanie projektu Android
       run: |
-        # 1. Tworzymy wymagany przez Cordovę folder www w pamięci serwera
+        # 1. Tworzymy wymagany folder www na wierzchu, jeśli go nie ma
         mkdir -p www
         
-        # 2. Bezpiecznie przenosimy tam luźne pliki z wierzchu
+        # 2. Kopiujemy luźne pliki z wierzchu do folderu www (jeśli istnieją na wierzchu)
         cp index.html www/ 2>/dev/null || true
         cp icon.png www/ 2>/dev/null || true
         
-        # 3. Instalacja platformy i budowanie na bazie istniejącego package.json
-        cordova platform add android --nosave
+        # 3. WYMUSZENIE instalacji najnowszej, stabilnej platformy Android, która ignoruje stare wersje z package.json
+        cordova platform add android@12.0.0 --nosave
+        
+        # 4. Kompilacja do czystego pliku APK
         cordova build android --packageType=apk --debug
 
     - name: Upload APK
