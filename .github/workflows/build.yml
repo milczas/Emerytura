@@ -1,4 +1,4 @@
-name: Generuj APK (Cordova)
+name: Generuj APK
 
 on:
   push:
@@ -19,37 +19,29 @@ jobs:
     - name: Instalacja Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: '20'
 
-    - name: Instalacja Java (JDK 11)
+    - name: Instalacja Java (JDK)
       uses: actions/setup-java@v4
       with:
-        distribution: 'zulu'
-        java-version: '11'
+        distribution: 'temurin'
+        java-version: '17'
 
     - name: Instalacja Apache Cordova
       run: npm install -g cordova
 
-    - name: Przygotowanie projektu Cordova
+    - name: Budowanie projektu Android
       run: |
-        mkdir cordova_project
-        cd cordova_project
-        cordova create app com.tomek.nowaemerytura "Nowa Emerytura"
-        rm -rf app/www
-        # Kopiujemy bezpiecznie cały folder www do wnętrza aplikacji
-        cp -r ../www app/www
-        # Kopiujemy plik konfiguracyjny
-        cp ../config.xml app/
-        cd app
+        cordova create emerytura_app com.tomek.nowaemerytura "Nowa Emerytura"
+        cd emerytura_app
+        rm -rf www
+        cp -r ../www www
+        cp ../config.xml config.xml
         cordova platform add android
-
-    - name: Kompilacja pliku APK
-      run: |
-        cd cordova_project/app
         cordova build android --debug
 
-    - name: Udostępnienie gotowego pliku APK do pobrania
+    - name: Udostępnienie gotowego pliku APK
       uses: actions/upload-artifact@v4
       with:
         name: Nowa_Emerytura_APK
-        path: cordova_project/app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        path: emerytura_app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
